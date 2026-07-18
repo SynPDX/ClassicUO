@@ -20,8 +20,7 @@ namespace ClassicUO.Game.UI.Gumps
     {
         private static readonly ushort[] PeaceModeBtnGumps = { 0x07e5, 0x07e6, 0x07e7 };
         private static readonly ushort[] WarModeBtnGumps = { 0x07e8, 0x07e9, 0x07ea };
-        private GumpPic _combatBook,
-            _racialAbilitiesBook;
+        private GumpPic _combatBook;
         private HitBox _hitBox;
         private bool _isWarMode,
             _isMinimized;
@@ -113,8 +112,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             var showPaperdollBooks =
                 LocalSerial == World.Player && World.ClientFeatures.PaperdollBooks;
-            var showRacialAbilitiesBook =
-                showPaperdollBooks && Client.Game.UO.Version >= ClientVersion.CV_7000;
+            // New Bradford: keep the combat/special-moves book (PaperdollBooks / AOS charlist
+            // flag) but never show the racial abilities book (client 7.0+). Server races/bonuses
+            // are not used under LBR; the book is dead weight on the paperdoll.
 
             if (LocalSerial == World.Player)
             {
@@ -219,11 +219,6 @@ namespace ClassicUO.Game.UI.Gumps
                 int profileX = 25;
                 const int SCROLLS_STEP = 14;
 
-                if (showRacialAbilitiesBook)
-                {
-                    profileX += SCROLLS_STEP;
-                }
-
                 Add(_profilePic = new GumpPic(profileX, 196, 0x07D2, 0));
                 _profilePic.MouseDoubleClick += Profile_MouseDoubleClickEvent;
 
@@ -296,19 +291,6 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     GameActions.OpenAbilitiesBook(World);
                 };
-
-                if (showRacialAbilitiesBook)
-                {
-                    Add(_racialAbilitiesBook = new GumpPic(23, 200, 0x2B28, 0));
-
-                    _racialAbilitiesBook.MouseDoubleClick += (sender, e) =>
-                    {
-                        if (UIManager.GetGump<RacialAbilitiesBookGump>() == null)
-                        {
-                            UIManager.Add(new RacialAbilitiesBookGump(World, 100, 100));
-                        }
-                    };
-                }
             }
 
             // Name and title

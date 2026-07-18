@@ -31,10 +31,11 @@ namespace ClassicUO.Game.Managers
 
             if (entity != null)
             {
-                if (!_world.ClientFeatures.TooltipsEnabled || SerialHelper.IsItem(Serial) && ((Item) entity).IsLocked && ((Item) entity).ItemData.Weight == 255 && !((Item) entity).ItemData.IsContainer)
-                {
-                    GameActions.SingleClick(_world, Serial);
-                }
+                // Always send the classic single-click (0x09 look / name request).
+                // Stock CUO suppresses this when CharacterListFlags.AOS tooltips are on;
+                // New Bradford keeps the AOS charlist bit for paperdoll combat books but
+                // still wants single-click naming for items/mobiles.
+                GameActions.SingleClick(_world, Serial);
 
                 if (_world.ClientFeatures.PopupEnabled)
                 {
