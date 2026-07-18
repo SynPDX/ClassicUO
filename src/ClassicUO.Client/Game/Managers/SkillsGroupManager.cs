@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using ClassicUO.Configuration;
+using ClassicUO.Game.Data;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
 using ClassicUO.Assets;
@@ -44,6 +45,12 @@ namespace ClassicUO.Game.Managers
 
         public void Add(byte item)
         {
+            // New Bradford: do not store post-LBR skills in skill groups UI.
+            if (SkillDisplayFilter.IsHidden(item))
+            {
+                return;
+            }
+
             if (!Contains(item))
             {
                 _list[Count++] = item;

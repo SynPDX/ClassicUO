@@ -745,12 +745,21 @@ namespace ClassicUO.Game.Scenes
                     uint cityDescription = p.ReadUInt32BE();
                     p.Skip(4);
 
+                    // Description is a cliloc id. Custom shards often send 0; avoid
+                    // "MegaCliloc: missing 0" and fall back to the building/city name.
+                    string descriptionText = cityDescription == 0
+                        ? (string.IsNullOrWhiteSpace(cityBuilding) ? cityName : cityBuilding)
+                        : Client.Game.UO.FileManager.Clilocs.GetString(
+                            (int) cityDescription,
+                            string.IsNullOrWhiteSpace(cityBuilding) ? cityName : cityBuilding
+                          );
+
                     cityInfo = new CityInfo
                     (
                         cityIndex,
                         cityName,
                         cityBuilding,
-                        Client.Game.UO.FileManager.Clilocs.GetString((int) cityDescription),
+                        descriptionText,
                         cityX,
                         cityY,
                         cityZ,

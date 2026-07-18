@@ -80,7 +80,7 @@ namespace ClassicUO.Game.UI.Gumps
             (
                 _skillsLabelSum = new Label
                 (
-                    World.Player.Skills.Sum(s => s.Value).ToString("F1"),
+                    World.Player.Skills.Where(s => !SkillDisplayFilter.IsHidden(s.Index)).Sum(s => s.Value).ToString("F1"),
                     false,
                     600,
                     0,
@@ -262,14 +262,17 @@ namespace ClassicUO.Game.UI.Gumps
                     control.IsMinimized = true;
 
                     int count = g.Count;
+                    int row = 0;
 
                     for (int i = 0; i < count; i++)
                     {
                         byte index = g.GetSkill(i);
 
-                        if (index < Client.Game.UO.FileManager.Skills.SkillsCount)
+                        if (index < Client.Game.UO.FileManager.Skills.SkillsCount &&
+                            !SkillDisplayFilter.IsHidden(index))
                         {
-                            control.AddSkill(index, 0, 17 + i * 17);
+                            control.AddSkill(index, 0, 17 + row * 17);
+                            row++;
                         }
                     }
                 }
@@ -352,7 +355,10 @@ namespace ClassicUO.Game.UI.Gumps
 
         private void SumTotalSkills()
         {
-            _skillsLabelSum.Text = World.Player.Skills.Sum(s => _checkReal.IsChecked ? s.Base : s.Value).ToString("F1");
+            _skillsLabelSum.Text = World.Player.Skills
+                .Where(s => !SkillDisplayFilter.IsHidden(s.Index))
+                .Sum(s => _checkReal.IsChecked ? s.Base : s.Value)
+                .ToString("F1");
         }
 
 

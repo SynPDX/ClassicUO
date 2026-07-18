@@ -173,6 +173,11 @@ namespace ClassicUO.Game.UI.Gumps
 
             foreach (Skill skill in sortSkills)
             {
+                if (SkillDisplayFilter.IsHidden(skill.Index))
+                {
+                    continue;
+                }
+
                 _totalReal += skill.Base;
                 _totalValue += skill.Value;
 

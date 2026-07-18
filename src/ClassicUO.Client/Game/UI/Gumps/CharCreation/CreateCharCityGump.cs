@@ -17,7 +17,8 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
     internal class CreateCharSelectionCityGump : Gump
     {
         private readonly List<CityControl> _cityControls = new List<CityControl>();
-        private readonly string[] _cityNames = { "Felucca", "Trammel", "Ilshenar", "Malas", "Tokuno", "Ter Mur" };
+        // Map 0 is Felucca in stock UO; New Bradford uses that slot as the only world map.
+        private readonly string[] _cityNames = { "New Bradford", "Trammel", "Ilshenar", "Malas", "Tokuno", "Ter Mur" };
         private readonly Label _facetName;
         private readonly HtmlControl _htmlControl;
         private readonly LoginScene _scene;

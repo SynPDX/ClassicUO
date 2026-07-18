@@ -179,6 +179,24 @@ namespace ClassicUO.Game.UI.Gumps
             }
         }
 
+        /// <summary>
+        /// Enter/Return in a server textentry. Stock CUO only bubbles this and never
+        /// replies, so gumps like New Bradford global chat could not submit on Enter.
+        /// Match common UO client behavior: treat Enter as button ID 1 (OK/Send).
+        /// Right-click close remains button 0. Servers must keep "submit" as button 1.
+        /// </summary>
+        public override void OnKeyboardReturn(int textID, string text)
+        {
+            if (ServerSerial != 0)
+            {
+                OnButtonClick(1);
+
+                return;
+            }
+
+            base.OnKeyboardReturn(textID, text);
+        }
+
         protected override void CloseWithRightClick()
         {
             if (!CanCloseWithRightClick)

@@ -146,36 +146,18 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
             var clientFlags = World.ClientLockedFeatures.Flags;
 
             _skillList = Client.Game.UO.FileManager.Skills.SortedSkills
+                         .Where(s => !SkillDisplayFilter.IsHidden(s.Index))
                          .Where(s =>
-                                     // All standard client versions ignore these skills by defualt
+                                     // All standard client versions ignore these skills by default
                                      //s.Index != 26 && // MagicResist
                                      s.Index != 47 && // Stealth
-                                     s.Index != 48 && // RemoveTrap
-                                     s.Index != 54 && // Spellweaving
-                                     (character.Race == RaceType.GARGOYLE || s.Index != 57) // Throwing for gargoyle only
+                                     s.Index != 48    // RemoveTrap
                                  )
                           .Where(s =>
                                     clientFlags.HasFlag(LockedFeatureFlags.AOS) ||
                                     (
-                                        s.Index != 51 && // Chivlary
-                                        s.Index != 50 && // Focus
+                                        s.Index != 51 && // Chivalry
                                         s.Index != 49    // Necromancy
-                                    )
-                                )
-
-                          .Where(s =>
-                                    clientFlags.HasFlag(LockedFeatureFlags.SE) ||
-                                    (
-                                        s.Index != 52 && // Bushido
-                                        s.Index != 53    // Ninjitsu
-                                    )
-                                )
-
-                          .Where(s =>
-                                    clientFlags.HasFlag(LockedFeatureFlags.SA) ||
-                                    (
-                                        s.Index != 55 && // Mysticism
-                                        s.Index != 56    // Imbuing
                                     )
                                 )
                          .ToList();
