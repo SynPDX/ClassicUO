@@ -34,12 +34,9 @@ namespace ClassicUO.Game.Managers
                 _canReproduceAudio = false;
             }
 
-            LoginMusicIndex = Client.Game.UO.Version switch
-            {
-                >= ClientVersion.CV_7000 => 78, // LoginLoop
-                > ClientVersion.CV_308Z => 0,
-                _ => 8 // stones2
-            };
+            // New Bradford: classic "Stones" at login (Config.txt index 8 → stones1).
+            // Stock ClassicUO uses 78 (LoginLoop) on 7.x clients.
+            LoginMusicIndex = 8;
 
             Client.Game.Activated += OnWindowActivated;
             Client.Game.Deactivated += OnWindowDeactivated;
