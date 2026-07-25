@@ -27,7 +27,6 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
 
         private PlayerMobile _character;
         private CharacterInfo _characterInfo;
-        private readonly Button _humanRadio, _elfRadio, _gargoyleRadio;
         private readonly Button _maleRadio, _femaleRadio;
         private Combobox _hairCombobox, _facialCombobox;
         private Label _hairLabel, _facialLabel;
@@ -139,63 +138,7 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
                 1
             );
 
-            // Races
-            Add
-            (
-                _humanRadio = new Button((int)Buttons.HumanButton, 0x0768, 0x0767)
-                {
-                    X = 180, Y = 435, ButtonAction = ButtonAction.Activate
-                },
-                1
-            );
-
-            Add
-            (
-                new Button((int) Buttons.HumanButton, 0x0702, 0x0704, 0x0703)
-                {
-                    X = 200, Y = 435, ButtonAction = ButtonAction.Activate
-                },
-                1
-            );
-
-            Add
-            (
-                _elfRadio = new Button((int)Buttons.ElfButton, 0x0768, 0x0767, 0x0768)
-                {
-                    X = 180, Y = 455, ButtonAction = ButtonAction.Activate
-                },
-                1
-            );
-
-            Add
-            (
-                new Button((int) Buttons.ElfButton, 0x0705, 0x0707, 0x0706)
-                {
-                    X = 200, Y = 455, ButtonAction = ButtonAction.Activate
-                },
-                1
-            );
-
-            if (Client.Game.UO.Version >= ClientVersion.CV_60144)
-            {
-                Add
-                (
-                    _gargoyleRadio = new Button((int)Buttons.GargoyleButton, 0x0768, 0x0767)
-                    {
-                        X = 60, Y = 435, ButtonAction = ButtonAction.Activate
-                    },
-                    1
-                );
-
-                Add
-                (
-                    new Button((int) Buttons.GargoyleButton, 0x07D3, 0x07D5, 0x07D4)
-                    {
-                        X = 80, Y = 435, ButtonAction = ButtonAction.Activate
-                    },
-                    1
-                );
-            }
+            // New Bradford: human-only character creation — no Human/Elf/Gargoyle race selector.
 
             // Prev/Next
             Add
@@ -217,7 +160,6 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
             );
 
             _maleRadio.IsClicked = true;
-            _humanRadio.IsClicked = true;
             _characterInfo.IsFemale = false;
             _characterInfo.Race = RaceType.HUMAN;
 
@@ -363,30 +305,12 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
 
         private void HandleRaceChanged()
         {
+            // New Bradford: race is always Human; Next is always available.
+            _characterInfo.Race = RaceType.HUMAN;
             CurrentColorOption.Clear();
             HandleGenreChange();
-            RaceType race = _characterInfo.Race;
-            CharacterListFlags flags = World.ClientFeatures.Flags;
-            LockedFeatureFlags locks = World.ClientLockedFeatures.Flags;
-
-            bool allowElf = (flags & CharacterListFlags.CLF_ELVEN_RACE) != 0 && locks.HasFlag(LockedFeatureFlags.ML);
-            bool allowGarg = locks.HasFlag(LockedFeatureFlags.SA);
-
-            if (race == RaceType.ELF && !allowElf)
-            {
-                _nextButton.IsEnabled = false;
-                _nextButton.Hue = 944;
-            }
-            else if (race == RaceType.GARGOYLE && !allowGarg)
-            {
-                _nextButton.IsEnabled = false;
-                _nextButton.Hue = 944;
-            }
-            else
-            {
-                _nextButton.IsEnabled = true;
-                _nextButton.Hue = 0;
-            }
+            _nextButton.IsEnabled = true;
+            _nextButton.Hue = 0;
         }
 
         private void HandleGenreChange()
@@ -691,63 +615,6 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
 
                     break;
 
-                case Buttons.HumanButton:
-
-                    _characterInfo.Race = RaceType.HUMAN;
-
-                    if (!_humanRadio.IsClicked)
-                    {
-                        _humanRadio.IsClicked = true;
-
-                        if (_elfRadio != null)
-                        {
-                            _elfRadio.IsClicked = false;
-                        }
-
-                        if (_gargoyleRadio != null)
-                        {
-                            _gargoyleRadio.IsClicked = false;
-                        }
-
-                        HandleRaceChanged();
-                    }
-
-                    break;
-
-                case Buttons.ElfButton:
-
-                    _characterInfo.Race = RaceType.ELF;
-
-                    if (!_elfRadio.IsClicked)
-                    {
-                        _elfRadio.IsClicked = true;
-                        _humanRadio.IsClicked = false;
-
-                        if (_gargoyleRadio != null)
-                        {
-                            _gargoyleRadio.IsClicked = false;
-                        }
-
-                        HandleRaceChanged();
-                    }
-
-                    break;
-
-                case Buttons.GargoyleButton:
-
-                    _characterInfo.Race = RaceType.GARGOYLE;
-
-                    if (!_gargoyleRadio.IsClicked)
-                    {
-                        _gargoyleRadio.IsClicked = true;
-                        _elfRadio.IsClicked = false;
-                        _humanRadio.IsClicked = false;
-
-                        HandleRaceChanged();
-                    }
-
-                    break;
-
                 case Buttons.Next:
                     _character.Name = _nameTextBox.Text;
 
@@ -993,9 +860,6 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
         {
             MaleButton,
             FemaleButton,
-            HumanButton,
-            ElfButton,
-            GargoyleButton,
             Prev,
             Next
         }
