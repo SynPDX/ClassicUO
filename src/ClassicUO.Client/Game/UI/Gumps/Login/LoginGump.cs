@@ -78,17 +78,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     Add(new GumpPic(286, 45, 0x058A, 0));
                 }
 
-                // Credits
-                Add
-                (
-                    new Button((int)Buttons.Credits, 0x1583, 0x1585, 0x1584)
-                    {
-                        X = 60,
-                        Y = 385,
-                        ButtonAction = ButtonAction.Activate
-                    }
-                );
-
                 Add
                 (
                     new Label(ResGumps.LoginToUO, false, HUE, font: 2)
@@ -131,25 +120,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
                 offsetX = 328;
                 offsetY = 343;
                 offtextY = 40;
-
-                Add
-                (
-                    new Label($"UO Version {Settings.GlobalSettings.ClientVersion}.", false, 0x034E, font: 9)
-                    {
-                        X = 286,
-                        Y = 453
-                    }
-                );
-
-                Add
-                (
-                    new Label(string.Format(ResGumps.CUOVersion0, CUOEnviroment.Version), false, 0x034E, font: 9)
-                    {
-                        X = 286,
-                        Y = 465
-                    }
-                );
-
 
                 Add
                 (
@@ -206,17 +176,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     }
                 );
 
-                //// Credit Button
-                Add
-                (
-                    new Button((int)Buttons.Credits, 0x05D0, 0x05CF, 0x5CE)
-                    {
-                        X = 530,
-                        Y = 125,
-                        ButtonAction = ButtonAction.Activate
-                    }
-                );
-
                 // Arrow Button
                 Add
                 (
@@ -231,26 +190,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
                 offsetX = 218;
                 offsetY = 283;
                 offtextY = 50;
-
-
-                Add
-                (
-                    new Label($"UO Version {Settings.GlobalSettings.ClientVersion}.", false, 0x0481, font: 9)
-                    {
-                        X = 286,
-                        Y = 453
-                    }
-                );
-
-                Add
-                (
-                    new Label(string.Format(ResGumps.CUOVersion0, CUOEnviroment.Version), false, 0x0481, font: 9)
-                    {
-                        X = 286,
-                        Y = 465
-                    }
-                );
-
 
                 Add
                 (
@@ -362,29 +301,9 @@ namespace ClassicUO.Game.UI.Gumps.Login
             _checkboxAutologin.IsChecked = Settings.GlobalSettings.AutoLogin;
 
 
-            int htmlX = 130;
+            // Match New Bradford [globalchat] command highlight (0xFFE808).
+            const string nbLinkColor = "#FFFFE808";
             int htmlY = 442;
-
-
-            Add
-            (
-                new HtmlControl
-                (
-                    htmlX,
-                    htmlY,
-                    150,
-                    15,
-                    false,
-                    false,
-                    false,
-                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://www.classicuo.eu/support.php\">Support ClassicUO!",
-                    0x32,
-                    true,
-                    isunicode: true,
-                    style: FontStyle.BlackBorder
-                )
-            );
-
 
             Add
             (
@@ -397,7 +316,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     false,
                     false,
                     false,
-                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://www.classicuo.eu\">Website",
+                    $"<body link=\"{nbLinkColor}\" vlink=\"{nbLinkColor}\" ><a href=\"https://newbradford.com\">Website",
                     0x32,
                     true,
                     isunicode: true,
@@ -416,7 +335,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     false,
                     false,
                     false,
-                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://discord.gg/VdyCpjQ\">Join Discord",
+                    $"<body link=\"{nbLinkColor}\" vlink=\"{nbLinkColor}\" ><a href=\"https://discord.newbradford.com\">Join Discord",
                     0x32,
                     true,
                     isunicode: true,
@@ -559,11 +478,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
 
                 case Buttons.Quit:
                     Client.Game.Exit();
-
-                    break;
-
-                case Buttons.Credits:
-                    UIManager.Add(new CreditsGump(World));
 
                     break;
             }
@@ -733,8 +647,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
         private enum Buttons
         {
             NextArrow,
-            Quit,
-            Credits
+            Quit
         }
     }
 }

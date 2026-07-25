@@ -55,7 +55,7 @@ namespace ClassicUO
 
             Window.ClientSizeChanged += WindowOnClientSizeChanged;
             Window.AllowUserResizing = true;
-            Window.Title = $"ClassicUO - {CUOEnviroment.Version}";
+            Window.Title = "New Bradford";
             IsMouseVisible = Settings.GlobalSettings.RunMouseInASeparateThread;
 
             IsFixedTimeStep = false; // Settings.GlobalSettings.FixedTimeStep;
@@ -169,21 +169,15 @@ namespace ClassicUO
 
         public void SetWindowTitle(string title)
         {
+            // New Bradford branding (no ClassicUO/version suffix).
             if (string.IsNullOrEmpty(title))
             {
-#if DEV_BUILD
-                Window.Title = $"ClassicUO [dev] - {CUOEnviroment.Version}";
-#else
-                Window.Title = $"ClassicUO - {CUOEnviroment.Version}";
-#endif
+                Window.Title = "New Bradford";
             }
             else
             {
-#if DEV_BUILD
-                Window.Title = $"{title} - ClassicUO [dev] - {CUOEnviroment.Version}";
-#else
-                Window.Title = $"{title} - ClassicUO - {CUOEnviroment.Version}";
-#endif
+                // In-world: character name still shown for multi-client convenience.
+                Window.Title = $"{title} - New Bradford";
             }
         }
 

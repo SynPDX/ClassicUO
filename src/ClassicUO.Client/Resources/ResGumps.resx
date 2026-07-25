@@ -754,7 +754,7 @@ when amount is or exceeds</value>
     <value>Account Name</value>
   </data>
   <data name="LoginToUO" xml:space="preserve">
-    <value>Log in to Ultima Online</value>
+    <value>Log in to New Bradford</value>
   </data>
   <data name="CUOVersion0" xml:space="preserve">
     <value>ClassicUO Version {0}</value>
