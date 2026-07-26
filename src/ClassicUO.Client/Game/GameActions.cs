@@ -178,36 +178,13 @@ namespace ClassicUO.Game
             }
         }
 
+        /// <summary>
+        /// New Bradford: menu bar Chat / OpenChat asks the server (packet 0xB5) to open
+        /// GlobalChat gumps. Do not open the native OSI ChatGump client-side.
+        /// </summary>
         public static void OpenChat(World world)
         {
-            if (world.ChatManager.ChatIsEnabled == ChatStatus.Enabled)
-            {
-                ChatGump chatGump = UIManager.GetGump<ChatGump>();
-
-                if (chatGump == null)
-                {
-                    UIManager.Add(new ChatGump(world));
-                }
-                else
-                {
-                    chatGump.SetInScreen();
-                    chatGump.BringOnTop();
-                }
-            }
-            else if (world.ChatManager.ChatIsEnabled == ChatStatus.EnabledUserRequest)
-            {
-                ChatGumpChooseName chatGump = UIManager.GetGump<ChatGumpChooseName>();
-
-                if (chatGump == null)
-                {
-                    UIManager.Add(new ChatGumpChooseName(world));
-                }
-                else
-                {
-                    chatGump.SetInScreen();
-                    chatGump.BringOnTop();
-                }
-            }
+            Socket.Send_OpenChat(string.Empty);
         }
 
         public static bool OpenCorpse(World world, uint serial)

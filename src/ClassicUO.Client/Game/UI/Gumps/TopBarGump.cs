@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
+using System;
 using System.Collections.Generic;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
@@ -13,12 +14,24 @@ using ClassicUO.Renderer;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
+using ClassicUO.Utility.Platforms;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps
 {
     internal class TopBarGump : Gump
     {
+        private const string DiscordUrl = "https://discord.newbradford.com";
+        private const string DonateUrl = "https://donate.newbradford.com";
+
+        /// <summary>Idle caption hue (white).</summary>
+        private const ushort MenuTextHue = 0x0481;
+        /// <summary>Hover caption hue.</summary>
+        private const ushort MenuTextHoverHue = 20095;
+
+        /// <summary>Which category dropdown is currently open, if any.</summary>
+        private Buttons? _openDropdown;
+
         private TopBarGump(World world) : base(world, 0, 0)
         {
             CanMove = true;
@@ -54,38 +67,23 @@ namespace ClassicUO.Game.UI.Gumps
                 largeWidth = gumpInfo.UV.Width;
             }
 
-            int[][] textTable =
-            {
-                new[] { 0, (int)Buttons.Map },
-                new[] { 1, (int)Buttons.Paperdoll },
-                new[] { 1, (int)Buttons.Inventory },
-                new[] { 1, (int)Buttons.Journal },
-                new[] { 0, (int)Buttons.Chat },
-                new[] { 0, (int)Buttons.Help },
-                new[] { 1, (int)Buttons.WorldMap },
-                new[] { 0, (int)Buttons.Info },
-                new[] { 0, (int)Buttons.Debug },
-                new[] { 1, (int)Buttons.NetStats },
-                new[] { 1, (int)Buttons.UOStore },
-                new[] { 1, (int)Buttons.GlobalChat }
-            };
-
             var cliloc = Client.Game.UO.FileManager.Clilocs;
 
-            string[] texts =
+            // widthType: 0 = small button, 1 = large button
+            // Map + Stats are category menus; Debug/Connection/World Map live in dropdowns.
+            (int widthType, Buttons button, string text)[] items =
             {
-                cliloc.GetString(3000430, ResGumps.Map),
-                cliloc.GetString(3000133, ResGumps.Paperdoll),
-                cliloc.GetString(3000431, ResGumps.Inventory),
-                cliloc.GetString(3000129, ResGumps.Journal),
-                cliloc.GetString(3000131, ResGumps.Chat),
-                cliloc.GetString(3000134, ResGumps.Help),
-                StringHelper.CapitalizeAllWords(cliloc.GetString(1015233, ResGumps.WorldMap)),
-                cliloc.GetString(1079449, ResGumps.Info),
-                cliloc.GetString(1042237, ResGumps.Debug),
-                cliloc.GetString(3000169, ResGumps.NetStats),
-                cliloc.GetString(1158008, ResGumps.UOStore),
-                cliloc.GetString(1158390, ResGumps.GlobalChat)
+                (0, Buttons.Help, cliloc.GetString(3000134, ResGumps.Help)),
+                (0, Buttons.Map, cliloc.GetString(3000430, ResGumps.Map)),
+                (1, Buttons.Paperdoll, cliloc.GetString(3000133, ResGumps.Paperdoll)),
+                (1, Buttons.Inventory, cliloc.GetString(3000431, ResGumps.Inventory)),
+                (1, Buttons.Journal, cliloc.GetString(3000129, ResGumps.Journal)),
+                (0, Buttons.Chat, cliloc.GetString(3000131, ResGumps.Chat)),
+                (1, Buttons.Discord, "Discord"),
+                (0, Buttons.Stats, "Stats"),
+                (1, Buttons.Donate, "Donate"),
+                (1, Buttons.UOStore, cliloc.GetString(1158008, ResGumps.UOStore)),
+                (1, Buttons.GlobalChat, cliloc.GetString(1158390, ResGumps.GlobalChat))
             };
 
             bool hasUOStore = Client.Game.UO.Version >= ClientVersion.CV_706400;
@@ -106,26 +104,30 @@ namespace ClassicUO.Game.UI.Gumps
 
             int startX = 30;
 
-            for (int i = 0; i < textTable.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
-                if (!hasUOStore && i >= (int)Buttons.UOStore)
+                var item = items[i];
+
+                // Pre-UOStore clients: hide store + global chat (legacy ClassicUO behavior).
+                if (!hasUOStore && (item.button == Buttons.UOStore || item.button == Buttons.GlobalChat))
                 {
-                    break;
+                    continue;
                 }
 
-                ushort graphic = (ushort)(textTable[i][0] != 0 ? 0x098D : 0x098B);
+                ushort graphic = (ushort)(item.widthType != 0 ? 0x098D : 0x098B);
 
+                // White idle text; hue 20095 on hover.
                 Add(
                     new RighClickableButton(
-                        textTable[i][1],
+                        (int)item.button,
                         graphic,
                         graphic,
                         graphic,
-                        texts[i],
+                        item.text,
                         1,
                         true,
-                        0,
-                        0x0036
+                        MenuTextHue,
+                        MenuTextHoverHue
                     )
                     {
                         ButtonAction = ButtonAction.Activate,
@@ -136,7 +138,7 @@ namespace ClassicUO.Game.UI.Gumps
                     1
                 );
 
-                startX += (textTable[i][0] != 0 ? largeWidth : smallWidth) + 1;
+                startX += (item.widthType != 0 ? largeWidth : smallWidth) + 1;
                 background.Width = startX;
             }
 
@@ -209,7 +211,20 @@ namespace ClassicUO.Game.UI.Gumps
             switch ((Buttons)buttonID)
             {
                 case Buttons.Map:
-                    GameActions.OpenMiniMap(World);
+                    ShowCategoryDropdown(
+                        Buttons.Map,
+                        ("Mini Map", () => GameActions.OpenMiniMap(World)),
+                        ("World Map", () => GameActions.OpenWorldMap(World))
+                    );
+
+                    break;
+
+                case Buttons.Stats:
+                    ShowCategoryDropdown(
+                        Buttons.Stats,
+                        ("Debug", ToggleDebugGump),
+                        ("Connection", ToggleConnectionGump)
+                    );
 
                     break;
 
@@ -234,13 +249,8 @@ namespace ClassicUO.Game.UI.Gumps
                     break;
 
                 case Buttons.GlobalChat:
-                    Log.Warn(ResGumps.ChatButtonPushedNotImplementedYet);
-                    GameActions.Print(
-                        World,
-                        ResGumps.GlobalChatNotImplementedYet,
-                        0x23,
-                        MessageType.System
-                    );
+                    // Same as Chat: server-side New Bradford global chat (0xB5).
+                    GameActions.OpenChat(World);
 
                     break;
 
@@ -257,60 +267,150 @@ namespace ClassicUO.Game.UI.Gumps
 
                     break;
 
-                case Buttons.Debug:
-
-                    DebugGump debugGump = UIManager.GetGump<DebugGump>();
-
-                    if (debugGump == null)
-                    {
-                        debugGump = new DebugGump(World, 100, 100);
-                        UIManager.Add(debugGump);
-                    }
-                    else
-                    {
-                        debugGump.IsVisible = !debugGump.IsVisible;
-                        debugGump.SetInScreen();
-                    }
+                case Buttons.Discord:
+                    PlatformHelper.LaunchBrowser(DiscordUrl);
 
                     break;
 
-                case Buttons.NetStats:
-                    NetworkStatsGump netstatsgump = UIManager.GetGump<NetworkStatsGump>();
-
-                    if (netstatsgump == null)
-                    {
-                        netstatsgump = new NetworkStatsGump(World, 100, 100);
-                        UIManager.Add(netstatsgump);
-                    }
-                    else
-                    {
-                        netstatsgump.IsVisible = !netstatsgump.IsVisible;
-                        netstatsgump.SetInScreen();
-                    }
-
-                    break;
-
-                case Buttons.WorldMap:
-                    GameActions.OpenWorldMap(World);
+                case Buttons.Donate:
+                    PlatformHelper.LaunchBrowser(DonateUrl);
 
                     break;
             }
         }
 
+        private void ToggleDebugGump()
+        {
+            DebugGump debugGump = UIManager.GetGump<DebugGump>();
+
+            if (debugGump == null)
+            {
+                debugGump = new DebugGump(World, 100, 100);
+                UIManager.Add(debugGump);
+            }
+            else
+            {
+                debugGump.IsVisible = !debugGump.IsVisible;
+                debugGump.SetInScreen();
+            }
+        }
+
+        private void ToggleConnectionGump()
+        {
+            NetworkStatsGump netstatsgump = UIManager.GetGump<NetworkStatsGump>();
+
+            if (netstatsgump == null)
+            {
+                netstatsgump = new NetworkStatsGump(World, 100, 100);
+                UIManager.Add(netstatsgump);
+            }
+            else
+            {
+                netstatsgump.IsVisible = !netstatsgump.IsVisible;
+                netstatsgump.SetInScreen();
+            }
+        }
+
+        private void ShowCategoryDropdown(Buttons anchor, params (string text, Action action)[] items)
+        {
+            // Same category open → toggle closed.
+            if (
+                UIManager.ContextMenu != null
+                && !UIManager.ContextMenu.IsDisposed
+                && _openDropdown == anchor
+            )
+            {
+                UIManager.ShowContextMenu(null);
+                _openDropdown = null;
+
+                return;
+            }
+
+            // Different category (or none) → replace with this dropdown.
+            var menu = new ContextMenuControl(this);
+
+            for (int i = 0; i < items.Length; i++)
+            {
+                var entry = items[i];
+                menu.Add(entry.text, entry.action);
+            }
+
+            menu.Show();
+            _openDropdown = anchor;
+            PositionDropdownUnderButton(anchor);
+        }
+
+        /// <summary>
+        /// Place the context menu flush under the category button (not at the mouse).
+        /// </summary>
+        private void PositionDropdownUnderButton(Buttons buttonId)
+        {
+            ContextMenuShowMenu cm = UIManager.ContextMenu;
+
+            if (cm == null || cm.IsDisposed)
+            {
+                return;
+            }
+
+            Button anchorBtn = null;
+
+            foreach (Button b in FindControls<Button>())
+            {
+                if (b.ButtonID == (int)buttonId)
+                {
+                    anchorBtn = b;
+
+                    break;
+                }
+            }
+
+            if (anchorBtn == null)
+            {
+                return;
+            }
+
+            int x = anchorBtn.ScreenCoordinateX;
+            int y = anchorBtn.ScreenCoordinateY + anchorBtn.Height;
+
+            // Keep on-screen (same idea as ContextMenuShowMenu).
+            if (x + cm.Width > Client.Game.ClientBounds.Width)
+            {
+                x = Client.Game.ClientBounds.Width - cm.Width;
+            }
+
+            if (y + cm.Height > Client.Game.ClientBounds.Height)
+            {
+                y = anchorBtn.ScreenCoordinateY - cm.Height;
+
+                if (y < 0)
+                {
+                    y = 0;
+                }
+            }
+
+            if (x < 0)
+            {
+                x = 0;
+            }
+
+            cm.X = x;
+            cm.Y = y;
+        }
+
         private enum Buttons
         {
-            Map,
-            Paperdoll,
-            Inventory,
-            Journal,
-            Chat,
-            Help,
-            WorldMap,
-            Info,
-            Debug,
-            NetStats,
-            UOStore,
-            GlobalChat
+            // Start at 1 so we never collide with page-toggle buttons (ButtonID 0).
+            Help = 1,
+            Map = 2,
+            Paperdoll = 3,
+            Inventory = 4,
+            Journal = 5,
+            Chat = 6,
+            Discord = 7,
+            Stats = 8,
+            Donate = 9,
+            UOStore = 10,
+            GlobalChat = 11
         }
 
         private class RighClickableButton : Button
