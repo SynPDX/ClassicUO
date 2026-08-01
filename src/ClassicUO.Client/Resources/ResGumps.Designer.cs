@@ -259,6 +259,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Always show lock icon on Anchored gumps.
+        /// </summary>
+        public static string AlwaysShowAnchoredGumpLocks {
+            get {
+                return ResourceManager.GetString("AlwaysShowAnchoredGumpLocks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unless hidden.
         /// </summary>
         public static string AlwaysRunHidden {

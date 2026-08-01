@@ -95,6 +95,7 @@ namespace ClassicUO.Game.UI.Gumps
                          _holdDownKeyTab,
                          _holdDownKeyAlt,
                          _closeAllAnchoredGumpsWithRClick,
+                         _alwaysShowAnchoredGumpLocks,
                          _chatAfterEnter,
                          _chatAdditionalButtonsCheckbox,
                          _chatShiftEnterCheckbox,
@@ -949,6 +950,18 @@ namespace ClassicUO.Game.UI.Gumps
                     null,
                     ResGumps.ClickCloseAllGumps,
                     _currentProfile.CloseAllAnchoredGumpsInGroupWithRightClick,
+                    0,
+                    0
+                )
+            );
+
+            section3.Add
+            (
+                _alwaysShowAnchoredGumpLocks = AddCheckBox
+                (
+                    null,
+                    ResGumps.AlwaysShowAnchoredGumpLocks,
+                    _currentProfile.AlwaysShowAnchoredGumpLocks,
                     0,
                     0
                 )
@@ -3592,6 +3605,7 @@ namespace ClassicUO.Game.UI.Gumps
                     _holdDownKeyTab.IsChecked = true;
                     _holdDownKeyAlt.IsChecked = true;
                     _closeAllAnchoredGumpsWithRClick.IsChecked = false;
+                    _alwaysShowAnchoredGumpLocks.IsChecked = true;
                     _holdShiftForContext.IsChecked = false;
                     _holdAltToMoveGumps.IsChecked = false;
                     _holdShiftToSplitStack.IsChecked = false;
@@ -3845,6 +3859,7 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.HoldDownKeyAltToCloseAnchored = _holdDownKeyAlt.IsChecked;
 
             _currentProfile.CloseAllAnchoredGumpsInGroupWithRightClick = _closeAllAnchoredGumpsWithRClick.IsChecked;
+            _currentProfile.AlwaysShowAnchoredGumpLocks = _alwaysShowAnchoredGumpLocks.IsChecked;
 
             _currentProfile.HoldShiftForContext = _holdShiftForContext.IsChecked;
             _currentProfile.HoldAltToMoveGumps = _holdAltToMoveGumps.IsChecked;

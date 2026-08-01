@@ -180,6 +180,12 @@ namespace ClassicUO.Configuration
         public bool CloseAllAnchoredGumpsInGroupWithRightClick { get; set; } = false;
         public bool HoldAltToMoveGumps { get; set; }
 
+        /// <summary>
+        /// When true (default), the unlock/lock icon is always drawn on anchored gumps (health bars, spells).
+        /// When false, the icon only appears while holding Alt.
+        /// </summary>
+        public bool AlwaysShowAnchoredGumpLocks { get; set; } = true;
+
         public bool HideScreenshotStoredInMessage { get; set; }
 
         // Experimental

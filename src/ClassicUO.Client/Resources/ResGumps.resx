@@ -162,6 +162,9 @@
   <data name="AlwaysRun" xml:space="preserve">
     <value>Always run</value>
   </data>
+  <data name="AlwaysShowAnchoredGumpLocks" xml:space="preserve">
+    <value>Always show lock icon on Anchored gumps</value>
+  </data>
   <data name="AlwaysRunHidden" xml:space="preserve">
     <value>Unless hidden</value>
   </data>

@@ -35,7 +35,11 @@ namespace ClassicUO.Game.UI.Gumps
         public int WidthMultiplier { get; protected set; } = 1;
         public int HeightMultiplier { get; protected set; } = 1;
 
-        public bool ShowLock => Keyboard.Alt && UIManager.AnchorManager[this] != null;
+        public bool ShowLock =>
+            UIManager.AnchorManager[this] != null
+            && (Keyboard.Alt
+                || ProfileManager.CurrentProfile != null
+                   && ProfileManager.CurrentProfile.AlwaysShowAnchoredGumpLocks);
 
         protected override void OnMove(int x, int y)
         {
