@@ -278,20 +278,6 @@ namespace ClassicUO.Game.UI.Gumps
 
             _options["free_view"] = new ContextMenuItemEntry(ResGumps.FreeView, () => { FreeView = !FreeView; }, true, FreeView);
 
-            for (int i = 0; i < MapLoader.MAPS_COUNT; i++)
-            {
-                var idx = i;
-
-                _options[$"free_view_map_{idx}"] = new ContextMenuItemEntry
-                (
-                    string.Format(ResGumps.WorldMapChangeMap0, idx), () =>
-                    {
-                        FreeView = true;
-                        ChangeMap(idx);
-                    }
-                );
-            }
-
             _options["show_party_members"] = new ContextMenuItemEntry
             (
                 ResGumps.ShowPartyMembers,
@@ -498,14 +484,7 @@ namespace ClassicUO.Game.UI.Gumps
             ContextMenu.Add(_options["goto_location"]);
             ContextMenu.Add(_options["flip_map"]);
             ContextMenu.Add(_options["top_most"]);
-
-            ContextMenuItemEntry freeView = new ContextMenuItemEntry(ResGumps.FreeView);
-            freeView.Add(_options["free_view"]);
-
-            for (int i = 0; i < MapLoader.MAPS_COUNT; i++)
-                freeView.Add(_options[$"free_view_map_{i}"]);
-
-            ContextMenu.Add(freeView);
+            ContextMenu.Add(_options["free_view"]);
 
             ContextMenu.Add("", null);
             ContextMenu.Add(_options["show_party_members"]);
