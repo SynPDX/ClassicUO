@@ -1019,6 +1019,8 @@ namespace ClassicUO.Game.Scenes
                     Camera.ZoomOut();
                 }
 
+                ZoomLevelGump.Show(_world);
+
                 return true;
             }
 
